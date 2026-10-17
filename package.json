@@ -1,0 +1,11 @@
+{
+  "name": "timemaster",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "dev": "python3 -m http.server 5173 --bind 0.0.0.0 --directory dist"
+  }
+}
