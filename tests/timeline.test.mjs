@@ -492,3 +492,39 @@ test('restored save refuses to overwrite a newer edit made during confirmation',
  historical.run(`window.confirm=()=>{const newer=JSON.parse(localStorage.getItem('osa-timeline-v1'));newer.title='并发更新';localStorage.setItem('osa-timeline-v1',JSON.stringify(newer));return true;};`);
  await historical.run('saveRestoredVersion()');assert.equal(JSON.parse(storage.get('osa-timeline-v1')).title,'并发更新');
 });
+
+test('expanded group hugs member bounds on both sides',()=>{
+  for(const side of [-1,1]){
+    const g={id:'compact',name:'集成与测试',side};
+    const events=[{...base,id:'a',group:g.id,start:'2026-11-22',showDate:true},{...base,id:'b',group:g.id,start:'2026-11-28',showDate:true}];
+    for(const padding of [2,6,16]){
+      const l=layout(events,[g],x,8,null,{padding}),b=l.boxes.get(g.id),ps=[...l.positions.values()];
+      assert.equal(b.left,Math.min(...ps.map(p=>p.left))-padding);
+      assert.equal(b.right,Math.max(...ps.map(p=>p.right))+padding);
+    }
+  }
+});
+test('expanded group reserves room for long locked heading and toggle',()=>{
+  const g={id:'wide',name:'很长的分组标题'.repeat(5),locked:true,side:1,textStyles:{name:{size:24}}};
+  const l=layout([{...base,id:'a',group:g.id}],[g],x,8),b=l.boxes.get(g.id);
+  assert.ok(b.right-b.left>=groupMetrics(g).minWidth-1e-9);
+  assert.ok(groupMetrics({...g,locked:true}).minWidth>groupMetrics({...g,locked:false}).minWidth);
+  assert.ok(groupMetrics({...g,name:'短标题',collapsed:true,textStyles:{}}).minWidth>=245);
+});
+
+test('floating labels follow canvas pan and dragging after zoom uses canvas coordinates',()=>{
+ const h=harness();h.run('addFloating()');
+ const before=h.run('floatingPosition(state.floatingLabels[0])');
+ h.run('Object.assign(view,panView({start:view.start,ppd:view.ppd,panY:view.panY},120,-35));render()');
+ const after=h.run('floatingPosition(state.floatingLabels[0])');
+ assert.ok(Math.abs(after.x-before.x-120)<1e-8);assert.equal(after.y,before.y-35);
+ h.run(`zoom(1.5);const p=floatingPosition(state.floatingLabels[0]);startFloatingDrag({preventDefault(){},clientX:100,clientY:100,pointerId:1},svg.querySelector('[data-floating]'));moveFloating({preventDefault(){},clientX:160,clientY:145});endDrag();globalThis.labelDelta={x:floatingPosition(state.floatingLabels[0]).x-p.x,y:floatingPosition(state.floatingLabels[0]).y-p.y};`);
+ assert.ok(Math.abs(h.run('labelDelta.x')-60)<1e-8);assert.equal(h.run('labelDelta.y'),45);
+});
+test('floating label double click edits in place with commit cancel and undo',()=>{
+ const h=harness();h.run(`addFloating();editFloatingText(state.floatingLabels[0].id);`);
+ assert.equal(h.run('inlineSession.item.id'),h.run('state.floatingLabels[0].id'));
+ h.run(`inlineSession.box.value='新的标签';finishInline();`);assert.equal(h.run('state.floatingLabels[0].title'),'新的标签');
+ h.run(`editFloatingText(state.floatingLabels[0].id);inlineSession.box.value='取消的修改';finishInline(true);`);assert.equal(h.run('state.floatingLabels[0].title'),'新的标签');
+ h.run('history(undo,redo)');assert.equal(h.run('state.floatingLabels[0].title'),'悬浮标签');
+});

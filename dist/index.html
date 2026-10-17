@@ -21,9 +21,9 @@
     <div class="zoom"><button id="minus" aria-label="缩小">−</button><span id="zoomText">100%</span><button id="plus" aria-label="放大">＋</button><i></i><button id="fit">适应画布</button></div>
     <div class="hint">拖元素调整上下 · Shift＋拖元素改日期 · Ctrl／⌘ 点击或框选 · 空白拖动平移 · 右键新增</div><div id="layoutWarning" hidden>锁定位置存在重叠，请调整日期或解除锁定后排版。</div><div id="dragFeedback" hidden></div><div id="empty" hidden>还没有元素，使用工具栏开始添加。</div>
   </section>
-  <aside id="panel"><div class="panel-head"><div><span class="eyebrow">ELEMENT INSPECTOR</span><h2 id="panelTitle">元素详情</h2></div><button id="close" aria-label="关闭详情">×</button></div>
+  <aside id="panel"><button id="inspectorToggle" aria-expanded="true" aria-controls="inspectorContent" aria-label="收起属性栏" title="收起属性栏">›</button><div id="inspectorContent"><div class="panel-head"><div><span class="eyebrow">ELEMENT INSPECTOR</span><h2 id="panelTitle">元素详情</h2></div><button id="close" aria-label="关闭详情">×</button></div>
     <section id="elementList" aria-label="全部时间轴元素"></section><div id="editor"></div><div id="welcome"><div class="welcome-icon">↖</div><h3>每个节点都有故事</h3><p>点击元素单独编辑，或使用工具栏插入新的内容。直接拖动调整上下位置，Shift＋拖动修改日期；Ctrl／⌘ 点击多个节点可批量编辑。</p><button class="primary" id="welcomeNew">＋ 新增里程碑</button><div class="stats"><b id="count">0</b><span>个项目节点</span></div></div>
-  </aside>
+  </div></aside>
 </main>
 <footer><span><b class="footer-mark">OSA</b> TIMELINE <i> / </i> 项目工作空间</span><span id="summary"></span><span>数据自动保存在当前浏览器</span></footer>
 <dialog id="groupDialog"><div class="panel-head"><h2>分组管理</h2><button onclick="this.closest('dialog').close()" aria-label="关闭">×</button></div><p>点击编辑可单独选择分组。</p><div id="groupList"></div><form id="groupForm"><input name="name" required placeholder="新分组名称" aria-label="新分组名称"><button class="primary">添加分组</button></form></dialog>

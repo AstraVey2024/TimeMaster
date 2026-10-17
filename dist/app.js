@@ -78,7 +78,7 @@ function render(){
   svg.replaceChildren();const w=stage.clientWidth;
   computed=layout(state.events,state.groups,X,view.ppd,null,state.layout);
   const baseAxis=120+computed.above;
-  const axis=drag&&(drag.event||drag.group)?drag.axis:baseAxis+view.panY,h=Math.max(stage.clientHeight,baseAxis+computed.below+65,...state.floatingLabels.map(e=>e.y+textStyle(e,'title',14).size*1.5+40));
+  const axis=drag&&(drag.event||drag.group)?drag.axis:baseAxis+view.panY,h=Math.max(stage.clientHeight,baseAxis+computed.below+65,...state.floatingLabels.map(e=>floatingPosition(e).y+textStyle(e,'title',14).size*1.5+40));
   view.axis=axis;svg.style.height=h+'px';svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
   const month=new Date(Math.floor(view.start)*DAY);month.setUTCDate(1);
   for(let i=0;i<200;i++){
@@ -573,10 +573,10 @@ function finishInline(cancel=false){
   }
 }
 function beginInline(target){
-  finishInline();const hit=resolveSelection(target);if(!hit)return;
+  finishInline();const label=target.closest('[data-floating]'),hit=label?{kind:'floating',id:label.dataset.floating}:resolveSelection(target);if(!hit)return;
   const field=target.dataset.inline,rect=cssRect(target);
   floatingField=field;select(hit);
-  const item=hit.kind==='group'?state.groups.find(g=>g.id===hit.id):currentEvent();
+  const item=hit.kind==='floating'?state.floatingLabels.find(e=>e.id===hit.id):hit.kind==='group'?state.groups.find(g=>g.id===hit.id):currentEvent();
   const actual=field==='date'?'start':field;
   const box=document.createElement('input');box.className='inline-text-editor';box.type=field==='date'?'date':'text';box.value=item[actual];box.setAttribute('aria-label',field==='date'?'编辑开始日期':'原位编辑文字');
   Object.assign(box.style,{left:Math.max(4,rect.left-5)+'px',top:Math.max(4,rect.top-5)+'px',width:Math.min(pageWidth()-16,Math.max(180,rect.width+35))+'px'});
@@ -720,23 +720,31 @@ for(const [id,key]of [['infoOwner','owner'],['infoDescription','description'],['
 $('#infoTitle').onchange=ev=>{snapshot();state.title=ev.target.value.trim()||'未命名时间轴';save();};
 $('#recordVersion').onclick=()=>{state.projectInfo.version=$('#infoVersion').value.trim();const id=crypto.randomUUID();pendingVersionId=id;state.revisions.push({id,snapshotId:id,snapshotStatus:'pending',kind:'tag',name:$('#revisionName').value.trim()||$('#infoVersion').value.trim()||'命名版本',time:new Date().toISOString(),version:$('#infoVersion').value.trim()||state.projectInfo.version||'未命名版本',summary:$('#revisionNote').value.trim()||'手动记录当前版本'});state.revisions=retainRevisions(state.revisions);$('#revisionNote').value='';$('#revisionName').value='';pendingChange=null;save();};
 function addFloating(){
- snapshot();const e={id:crypto.randomUUID(),title:'悬浮标签',x:Math.max(15,stage.clientWidth/2-60),y:stage.scrollTop+80,color:'#fff2cc',textColor:'#22332e',textStyles:{},opacity:1,design:'label'};
+ snapshot();const e={id:crypto.randomUUID(),title:'悬浮标签',x:Math.max(15,stage.clientWidth/2-60),y:stage.scrollTop+80,canvasAnchor:{start:view.start,ppd:view.ppd,panY:view.panY},color:'#fff2cc',textColor:'#22332e',textStyles:{},opacity:1,design:'label'};
  state.floatingLabels.push(e);select({kind:'floating',id:e.id});
 }
 $('#newFloating').onclick=addFloating;
+function floatingAnchor(e){
+ const a=e.canvasAnchor;
+ return a&&Number.isFinite(a.start)&&Number.isFinite(a.ppd)&&a.ppd>=.6&&a.ppd<=55&&Number.isFinite(a.panY)?a:{start:day('2026-09-01'),ppd:7,panY:0};
+}
+function floatingPosition(e){
+ const a=floatingAnchor(e);
+ return {x:(a.start+e.x/a.ppd-view.start)*view.ppd,y:e.y+view.panY-a.panY};
+}
 function renderFloatingLabels(){
  for(const e of state.floatingLabels){
- const title=(e.icon?e.icon+' ':'')+e.title,st=textStyle(e,'title',14),width=Math.max(80,textWidth(title,st)+24),height=st.size*1.5+16;
+ const {x,y}=floatingPosition(e),title=(e.icon?e.icon+' ':'')+e.title,st=textStyle(e,'title',14),width=Math.max(80,textWidth(title,st)+24),height=st.size*1.5+16;
  const el=node('g',{'data-floating':e.id,class:'floating-label',tabindex:0,role:'button','aria-label':'悬浮标签 '+e.title});
- el.append(node('rect',{x:e.x,y:e.y,width,height,rx:e.design==='square'?0:e.design==='round'?height/2:6,fill:e.color,'fill-opacity':e.opacity??1,stroke:(selected?.kind==='floating'&&selected.id===e.id)||(selected?.kind==='all'&&selected.floatingIds.includes(e.id))?'#c7000b':'#aeb4bc','stroke-width':selected?.id===e.id||selected?.kind==='all'&&selected.floatingIds.includes(e.id)?2:1}));
- el.append(node('text',{x:e.x+12,y:e.y+8+st.size,...textAttrs(e,'title',14,1,e.textColor),'pointer-events':'none'},title));svg.append(el);
+ el.append(node('rect',{x,y,width,height,rx:e.design==='square'?0:e.design==='round'?height/2:6,fill:e.color,'fill-opacity':e.opacity??1,stroke:(selected?.kind==='floating'&&selected.id===e.id)||(selected?.kind==='all'&&selected.floatingIds.includes(e.id))?'#c7000b':'#aeb4bc','stroke-width':selected?.id===e.id||selected?.kind==='all'&&selected.floatingIds.includes(e.id)?2:1}));
+ el.append(node('text',{x:x+12,y:y+8+st.size,...textAttrs(e,'title',14,1,e.textColor),'data-inline':'title'},title));svg.append(el);
  }
 }
 function floatingEditor(){
  const e=state.floatingLabels.find(e=>e.id===selected.id);if(!e)return;
  $('#panelTitle').textContent='悬浮标签';$('#editor').innerHTML=`<p class="help">不绑定日期，不参与自动避让。直接拖动；双击改字，外观使用悬浮工具栏设置。</p><div class="field"><label>标签文字</label><textarea id="floatingTitle">${esc(e.title)}</textarea></div><div class="row"><div class="field"><label>X</label><input type="number" id="floatingX" value="${e.x}"></div><div class="field"><label>Y</label><input type="number" id="floatingY" value="${e.y}"></div></div><button id="deleteFloating" class="danger">删除悬浮标签</button>`;
  $('#floatingTitle').onchange=ev=>{snapshot();e.title=ev.target.value.trim()||'悬浮标签';render();};
- for(const key of ['x','y'])$('#floating'+key.toUpperCase()).onchange=ev=>{const n=Number(ev.target.value);if(Number.isFinite(n)){snapshot();e[key]=Math.max(0,n);render();}};
+ for(const key of ['x','y'])$('#floating'+key.toUpperCase()).onchange=ev=>{const n=Number(ev.target.value);if(Number.isFinite(n)){snapshot();e[key]=n;render();}};
  $('#deleteFloating').onclick=deleteElements;
 }
 function startFloatingDrag(ev,target){
@@ -745,9 +753,9 @@ function startFloatingDrag(ev,target){
 }
 function moveFloating(ev){
  ev.preventDefault();const dx=pointerX(ev)-drag.x,dy=pointerY(ev)-drag.y;if(!drag.moved&&Math.hypot(dx,dy)<4)return;
- if(!drag.moved)snapshot();drag.moved=true;const e=state.floatingLabels.find(e=>e.id===drag.id);e.x=Math.max(0,drag.labelX+dx);e.y=Math.max(0,drag.labelY+dy);render();
+ if(!drag.moved)snapshot();drag.moved=true;const e=state.floatingLabels.find(e=>e.id===drag.id);e.x=drag.labelX+dx*floatingAnchor(e).ppd/drag.ppd;e.y=drag.labelY+dy;render();
 }
-function editFloatingText(id){select({kind:'floating',id});const input=$('#floatingTitle');input.focus();input.select();}
+function editFloatingText(id){const el=[...svg.querySelectorAll('[data-floating]')].find(el=>el.dataset.floating===id);if(el)beginInline(el.querySelector('[data-inline]'));}
 
 
 function retainRevisions(records){
@@ -816,7 +824,7 @@ function startMarquee(ev){
 function rectangleSelection(rect,seedIds=[],seedGroups=[],seedFloating=[]){
  const ids=[...new Set([...seedIds,...hitsInRectangle(rect,computed.positions,view.axis)])],groups=[...seedGroups],floating=[...seedFloating];
  for(const g of state.groups){const b=computed.boxes.get(g.id);if(!b)continue;const top=b.side<0?view.axis-b.bottom:view.axis+b.top,bottom=top+b.bottom-b.top;if(rect.left<=b.left&&rect.right>=b.right&&rect.top<=top&&rect.bottom>=bottom)groups.push(g.id);}
- for(const e of state.floatingLabels){const st=textStyle(e,'title',14),w=Math.max(80,textWidth((e.icon?e.icon+' ':'')+e.title,st)+24),h=st.size*1.5+16;if(e.x<=rect.right&&e.x+w>=rect.left&&e.y<=rect.bottom&&e.y+h>=rect.top)floating.push(e.id);}
+ for(const e of state.floatingLabels){const st=textStyle(e,'title',14),w=Math.max(80,textWidth((e.icon?e.icon+' ':'')+e.title,st)+24),h=st.size*1.5+16;const p=floatingPosition(e);if(p.x<=rect.right&&p.x+w>=rect.left&&p.y<=rect.bottom&&p.y+h>=rect.top)floating.push(e.id);}
  return groups.length||floating.length?{kind:'all',scope:'rectangle',ids,groupIds:[...new Set(groups)],floatingIds:[...new Set(floating)]}:selectionFromIds(ids);
 }
 function resizeSelectedText(delta){
@@ -926,3 +934,17 @@ for(const event of ['pointerup','pointercancel'])$('#imagePreviewWrap').addEvent
 function closeImageExport(){if(imagePreviewURL)URL.revokeObjectURL(imagePreviewURL);imagePreviewURL='';$('#imageExportPreview').src='';imageCropDrag=null;}
 $('#closeImageExport').onclick=()=>$('#imageExportDialog').close();$('#imageExportDialog').addEventListener('close',closeImageExport);
 $('#downloadImageExport').onclick=async()=>{const button=$('#downloadImageExport');button.disabled=true;try{const source=imageExportSource,crop=imageCrop(),size=outputPixels(crop,$('#imageExportWidth').value),transparent=$('#imageExportTransparent').checked;const url=URL.createObjectURL(new Blob([croppedSvg(source.markup,crop,size)],{type:'image/svg+xml'}));try{const img=new Image();img.src=url;await img.decode();const canvas=document.createElement('canvas');paintExport(canvas,img,size,transparent);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('图片生成失败，请降低分辨率');downloadBlob(blob,`OSA-图片-${size.width}x${size.height}.png`);$('#imageExportStatus').textContent='已导出 PNG 图片';}finally{URL.revokeObjectURL(url);}}catch(error){$('#imageExportStatus').textContent='导出失败：'+error.message;}finally{button.disabled=false;}};
+
+function setInspectorCollapsed(collapsed,persist=true){
+ finishInline();
+ document.body.classList.toggle('inspector-collapsed',collapsed);
+ $('#inspectorContent').hidden=collapsed;
+ const button=$('#inspectorToggle');
+ button.textContent=collapsed?'‹':'›';
+ button.setAttribute('aria-expanded',String(!collapsed));
+ button.title=collapsed?'展开属性栏':'收起属性栏';button.setAttribute('aria-label',button.title);
+ if(persist)try{localStorage.setItem('osa-inspector-collapsed',String(collapsed));}catch{}
+ render();
+}
+$('#inspectorToggle').onclick=()=>setInspectorCollapsed(!document.body.classList.contains('inspector-collapsed'));
+setInspectorCollapsed(localStorage.getItem('osa-inspector-collapsed')==='true',false);
