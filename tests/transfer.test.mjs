@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {calendarDate,inspectImport,mergeImport,reportData,reportRows,reportSvg,excelReport,pdfReport} from '../dist/transfer.mjs';
+import {calendarDate,inspectImport,mergeImport,reportData,reportRows,reportSvg,excelReport,pdfReport} from '../dist/timeline/transfer.mjs';
 import {harness} from './app-harness.mjs';
 const fixture={title:'客户计划',projectInfo:{owner:'负责人',version:'V2'},groups:[{id:'g',name:'研发',side:-1}],events:[{id:'a',title:'交付',start:'2026-10-01',end:'2026-10-31',group:'g',description:'绝密备注',side:1,offset:60,scale:1,color:'#ffffff',textColor:'#000000'},{id:'b',title:'验收',start:'2026-11-01',group:'',hidden:true,description:'另一备注'}]};
 test('strict calendar validation rejects rollover and reversed dates',()=>{assert.equal(calendarDate('2026-02-30'),false);assert.equal(calendarDate('2024-02-29'),true);const s=structuredClone(fixture);s.events[0].end='2026-09-30';assert.match(inspectImport(fixture,s).errors.join(),/异常日期/);});
@@ -16,3 +16,4 @@ test('bad dates disable import and conflicting edits block application',async()=
 
 test('named versions survive undo and redo independently of edit history',async()=>{const h=harness();h.run("snapshot();state.title='已修改';save()");await h.run('versionWrites');h.get('revisionName').value='评审版';h.get('recordVersion').click();await h.run('versionWrites');const id=h.run('state.revisions.at(-1).id');h.get('undo').click();assert.notEqual(h.run('state.title'),'已修改');assert.ok(h.run(`state.revisions.some(r=>r.id===${JSON.stringify(id)})`));h.get('redo').click();assert.ok(h.run(`state.revisions.some(r=>r.id===${JSON.stringify(id)})`));});
 test('snapshot write failure retains exact named payload for retry and shows persistent alert',async()=>{const h=harness();await h.run('versionWrites');h.run("const originalVersionWriter=writeVersionSnapshot;writeVersionSnapshot=async()=>{throw Error('quota')}");h.get('revisionName').value='待重试评审版';h.get('recordVersion').click();await h.run('versionWrites');assert.equal(h.get('saveFailure').hidden,false);assert.equal(h.run('failedSnapshotWrites.size'),1);assert.equal(h.run('state.revisions.at(-1).snapshotStatus'),'error');h.run('writeVersionSnapshot=originalVersionWriter');await h.get('retrySave').onclick();assert.equal(h.run('failedSnapshotWrites.size'),0);assert.equal(h.run('state.revisions.at(-1).snapshotStatus'),'ready');assert.equal(h.get('saveFailure').hidden,true);});
+

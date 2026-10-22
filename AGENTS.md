@@ -1,11 +1,12 @@
 # TimeMaster development guide
 
 ## Architecture
-- This is a buildless, browser-local timeline editor. `dist/` contains editable source, not generated output.
-- `dist/app.js` wires DOM, application state, local file operations and export dialogs.
+- This is a buildless, browser-local planning and timeline editor. `dist/` contains editable source, not generated output.
+- `dist/timeline/app.js` wires DOM, application state, local file operations and export dialogs.
 - Pure modules cover layout, formatting, dates, import/report generation and image export geometry.
-- `dist/versions.mjs` stores recoverable snapshots in IndexedDB. localStorage stores the active document.
-- There are no runtime npm dependencies or backend APIs.
+- `dist/timeline/versions.mjs` stores recoverable snapshots in IndexedDB. localStorage stores the active document.
+- There are no backend APIs. Browser bundles for x-spreadsheet and ExcelJS are vendored with licenses under `dist/vendor/`; npm dependencies support tests.
+- `dist/sheet-app.mjs` and `dist/sheet-model.mjs` manage the spreadsheet; `dist/engine.mjs` schedules dependencies; `dist/plan-to-timeline.mjs` converts schedules.
 
 ## Validation
 - Run `npm test` or `node --test tests/*.test.mjs` after functional changes.
@@ -24,3 +25,4 @@
 - Chinese UI; enterprise red/silver/white palette.
 - Keep inline editing, floating formatting tools, group layers behind nodes, multi-selection and Ctrl/Cmd shortcuts working.
 - Preserve PNG transparency/cropping and allocation limits, report filters, and note exclusion by default.
+

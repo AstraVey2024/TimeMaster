@@ -23,3 +23,4 @@ export function normalizeFormatting(state){
   for(const e of state.events){e.showProgress=e.showProgress===true;e.progress=bound(e.progress,0,100,0);e.progressColor=color(e.progressColor)||'#4472c4';}
   return state;
 }
+

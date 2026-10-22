@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {layout,measure,intersects} from '../dist/layout.mjs';
-import {safeLink,safeImage,resolveSelection} from '../dist/content.mjs';
+import {layout,measure,intersects} from '../dist/timeline/layout.mjs';
+import {safeLink,safeImage,resolveSelection} from '../dist/timeline/content.mjs';
 const x=d=>(Date.parse(d)-Date.parse('2026-01-01'))/86400000*8;
 const base={title:'测试节点',start:'2026-11-10',end:'',type:'milestone',side:1,offset:60,scale:1,group:'',manual:false,showDate:false};
 test('group click selects only group; child label selects only child',()=>{
@@ -50,7 +50,7 @@ test('links reject executable protocols; image imports reject active markup',()=
   assert.equal(safeImage('data:image/svg+xml;base64,AA=='),'');assert.equal(safeImage('data:image/png;base64,AA=='),'data:image/png;base64,AA==');
 });
 
-import {pushHistory,HISTORY_LIMIT,wheelIntent,panView,zoomView,historyShortcut} from '../dist/interactions.mjs';
+import {pushHistory,HISTORY_LIMIT,wheelIntent,panView,zoomView,historyShortcut} from '../dist/timeline/interactions.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 test('undo and redo histories never exceed 50 states; edits clear redo',()=>{
@@ -82,7 +82,7 @@ test('Ctrl wheel takes priority over timeline zoom and Shift scrolling',()=>{
   assert.equal(wheelIntent({ctrlKey:true,shiftKey:true}),'page');assert.equal(wheelIntent({metaKey:true}),'page');
   assert.equal(wheelIntent({}),'timeline');assert.equal(wheelIntent({shiftKey:true}),'scroll');
 });
-const appSource=fs.readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
+const appSource=fs.readFileSync(new URL('../dist/timeline/app.js',import.meta.url),'utf8');
 test('canvas wheel delegates modified wheel to document page handler',()=>{
   const begin=appSource.indexOf("svg.addEventListener('wheel'"),end=appSource.indexOf("svg.addEventListener('dblclick'",begin);
   let handler,prevented=0,zooms=0;
@@ -97,12 +97,12 @@ test('actual blank-space pointer move updates both horizontal and vertical view'
   handler({clientX:70,clientY:60,preventDefault:()=>{}});assert.equal(view.start,0);assert.equal(view.panY,30);assert.equal(renders,1);
 });
 test('right-click actions include every supported insertable element',()=>{
-  const html=fs.readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
+  const html=fs.readFileSync(new URL('../dist/timeline/index.html',import.meta.url),'utf8');
   for(const type of ['milestone','period','group','image','link','note'])assert.ok(html.includes(`data-insert="${type}"`));
   assert.ok(appSource.includes("svg.addEventListener('contextmenu'"));assert.ok(appSource.includes('placement.day,kind,placement.group,placement'));
 });
 
-import {dateCaption,displayTitle,migrateDateTitle,shiftEventDates,groupDateRange,syncEventDateFields} from '../dist/dates.mjs';
+import {dateCaption,displayTitle,migrateDateTitle,shiftEventDates,groupDateRange,syncEventDateFields} from '../dist/timeline/dates.mjs';
 test('milestones and periods display current dates and can hide them',()=>{
   const milestone={...base,title:'客户送测',showDate:true};assert.equal(dateCaption(milestone),'2026-11-10');assert.equal(displayTitle(milestone),'2026-11-10 · 客户送测');
   const period={...milestone,type:'period',end:'2026-12-05'};assert.equal(dateCaption(period),'2026-11-10 → 2026-12-05');
@@ -138,7 +138,7 @@ test('group date range changes immediately as all members move together',()=>{
   assert.equal(groupDateRange(events),'2026-12-02 → 2026-12-07');
 });
 
-import {normalizeProject,metadata,toggleSelection,selectionFromIds,selectedIds,groupSummary,applyBatch,hitsInRectangle,dragMode,resizeDates} from '../dist/project.mjs';
+import {normalizeProject,metadata,toggleSelection,selectionFromIds,selectedIds,groupSummary,applyBatch,hitsInRectangle,dragMode,resizeDates} from '../dist/timeline/project.mjs';
 import {harness} from './app-harness.mjs';
 test('project fields migrate without inventing task completion or owners',()=>{
   const state={events:[{...base,status:'bogus',owner:9}],groups:[{id:'g'}]};normalizeProject(state);
@@ -211,7 +211,7 @@ test('actual Ctrl marquee selects visible cards without consuming undo history',
   assert.equal(h.run('selected.kind'),'multi');assert.equal(h.run('selected.ids.length'),16);assert.equal(h.run('undo.length'),0);
 });
 
-import {labelMetrics,labelCoordinates,groupStyle} from '../dist/presentation.mjs';
+import {labelMetrics,labelCoordinates,groupStyle} from '../dist/timeline/presentation.mjs';
 test('tracking fields are hidden by default while retaining status and owner data',()=>{
   const state={events:[{...base,status:'active',owner:'张工'}],groups:[]};normalizeProject(state);const e=state.events[0];
   assert.equal(e.showStatus,false);assert.equal(e.showOwner,false);assert.equal(e.status,'active');assert.equal(e.owner,'张工');assert.equal(metadata(e),'');
@@ -263,7 +263,7 @@ test('batch visibility and date placement preserve underlying task values',()=>{
   assert.equal(state.events[0].status,'done');assert.equal(state.events[1].owner,'李工');assert.equal(metadata(state.events[0]),'');assert.equal(state.events[1].datePosition,'bottom');
 });
 
-import {FONTS,COLORS,LAYOUT_PRESETS,normalizeFormatting,normalizeLayout,textAttrs,textStyle,groupMetrics} from '../dist/formatting.mjs';
+import {FONTS,COLORS,LAYOUT_PRESETS,normalizeFormatting,normalizeLayout,textAttrs,textStyle,groupMetrics} from '../dist/timeline/formatting.mjs';
 test('progress defaults hidden and never derives completion from the date',()=>{
   const state={groups:[],events:[{...base,type:'period',end:'2026-11-20'}]};normalizeFormatting(state);assert.equal(state.events[0].showProgress,false);assert.equal(state.events[0].progress,0);
   const hidden=measure(state.events[0],x);state.events[0].showProgress=true;state.events[0].progress=40;const shown=measure(state.events[0],x);assert.ok(shown.height>hidden.height);assert.equal(state.events[0].progress,40);
@@ -528,3 +528,4 @@ test('floating label double click edits in place with commit cancel and undo',()
  h.run(`editFloatingText(state.floatingLabels[0].id);inlineSession.box.value='取消的修改';finishInline(true);`);assert.equal(h.run('state.floatingLabels[0].title'),'新的标签');
  h.run('history(undo,redo)');assert.equal(h.run('state.floatingLabels[0].title'),'悬浮标签');
 });
+

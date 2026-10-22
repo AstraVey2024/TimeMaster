@@ -125,3 +125,4 @@ body.history-window main{height:calc(100vh - 252px)}#restoreBanner{min-height:50
 #inspectorToggle{position:absolute;left:-14px;top:20px;z-index:12;width:28px;height:40px;padding:0;border:1px solid #d8dadd;border-radius:7px;background:#fff;color:#62666c;font-size:24px;box-shadow:0 2px 8px #0000000d}
 #inspectorToggle:hover{color:#c7000b;border-color:#c7000b;background:#fff0f1}
 body.inspector-collapsed #panel,body.inspector-collapsed #panel.open{flex:0 0 20px;width:20px;background:#f5f5f5}
+

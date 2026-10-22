@@ -1,0 +1,716 @@
+{
+  "schemaVersion": 1,
+  "name": "演示跨领域计划",
+  "start": "2030-01-07",
+  "monthDays": 30,
+  "weekends": false,
+  "holidays": [
+    {
+      "id": "demo-holiday",
+      "name": "示例停工",
+      "start": "2030-02-01",
+      "end": "2030-02-03"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "spec",
+      "name": "规格协同",
+      "lane": "模块",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "",
+      "status": "na",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "optical",
+      "name": "光学评审",
+      "lane": "模块",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "",
+      "status": "na",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "schematic",
+      "name": "原理图评审",
+      "lane": "模块",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "",
+      "status": "na",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "size",
+      "name": "$尺寸&外观稳定",
+      "lane": "模块",
+      "duration": 1,
+      "unit": "week",
+      "deps": [],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "module_pcb",
+      "name": "PCB&结构评审",
+      "lane": "模块",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "size"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "dummy",
+      "name": "$假样回样",
+      "lane": "模块",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "module_pcb"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "sample",
+      "name": "$光模块首样产出",
+      "lane": "模块",
+      "duration": 1,
+      "unit": "day",
+      "deps": [
+        "dummy"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "reliability_sample",
+      "name": "可靠性样品",
+      "lane": "模块",
+      "duration": 2,
+      "unit": "day",
+      "deps": [
+        "sample"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "reliability_test",
+      "name": "可靠性测试周期",
+      "lane": "模块",
+      "duration": 3,
+      "unit": "day",
+      "deps": [
+        "reliability_sample"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "code",
+      "name": "编码发放",
+      "lane": "模块",
+      "duration": null,
+      "unit": "day",
+      "deps": [
+        "reliability_test"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "board_design",
+      "name": "原理图设计",
+      "lane": "单板",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "",
+      "status": "na",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "board_size",
+      "name": "$尺寸&外观稳定",
+      "lane": "单板",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "size",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "layout",
+      "name": "单板布局&盘纤",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "size"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "interconnect",
+      "name": "互联",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "layout"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "material",
+      "name": "备料申请",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "month",
+      "deps": [],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "cad",
+      "name": "CAD清零",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "day",
+      "deps": [
+        "interconnect"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "qc",
+      "name": "QC清零",
+      "lane": "单板",
+      "duration": 2,
+      "unit": "day",
+      "deps": [
+        "cad"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "eq",
+      "name": "EQ",
+      "lane": "单板",
+      "duration": 3,
+      "unit": "day",
+      "deps": [
+        "qc"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "pcb",
+      "name": "PCB回板",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "eq"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "pcba",
+      "name": "PCBA回样",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "pcb"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "board_sample",
+      "name": "$光模块首样产出",
+      "lane": "单板",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "sample",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "kit",
+      "name": "$物料齐套",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "day",
+      "deps": [
+        "pcba",
+        "sample",
+        "material",
+        "struct_sample"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "online",
+      "name": "$单板上线",
+      "lane": "单板",
+      "duration": 2,
+      "unit": "day",
+      "deps": [
+        "kit"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "tr4a",
+      "name": "$TR4A",
+      "lane": "单板",
+      "duration": 0,
+      "unit": "day",
+      "deps": [
+        "group1",
+        "dip_emc",
+        "struct_test",
+        "bom_archive"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "tr5",
+      "name": "$TR5",
+      "lane": "单板",
+      "duration": 0,
+      "unit": "day",
+      "deps": [
+        "group2",
+        "fai"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "ess",
+      "name": "ESS加工\n（依赖结构FAI、量产物料）",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "month",
+      "deps": [
+        "tr5",
+        "fai",
+        "mass_material"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "tr6",
+      "name": "$TR6",
+      "lane": "单板",
+      "duration": 3,
+      "unit": "day",
+      "deps": [
+        "ess"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "struct_size",
+      "name": "$尺寸&外观稳定",
+      "lane": "结构",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "size",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "struct_design",
+      "name": "设计\n（依赖布局、模块外形基线）",
+      "lane": "结构",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "size",
+        "layout"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "struct_sample",
+      "name": "投样回样",
+      "lane": "结构",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "struct_design"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "struct_kit",
+      "name": "$假样回样",
+      "lane": "结构",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "dummy",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "assembly",
+      "name": "试装",
+      "lane": "结构",
+      "duration": 2,
+      "unit": "day",
+      "deps": [
+        "struct_kit",
+        "struct_sample"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "struct_test",
+      "name": "测试",
+      "lane": "结构",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "assembly"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "archive",
+      "name": "$图纸归档",
+      "lane": "结构",
+      "duration": 1,
+      "unit": "day",
+      "deps": [
+        "tr4a"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "struct_tr4a",
+      "name": "$TR4A",
+      "lane": "结构",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "tr4a",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "fai",
+      "name": "结构件导入FAI",
+      "lane": "结构",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "mass_material"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "mass_material",
+      "name": "$量产物料齐备(结构&光模块)",
+      "lane": "结构",
+      "duration": 1,
+      "unit": "month",
+      "deps": [
+        "archive"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "struct_tr5",
+      "name": "$TR5",
+      "lane": "结构",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "tr5",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "test_online",
+      "name": "$单板上线",
+      "lane": "测试",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "online",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "group1",
+      "name": "结论确认组（UT/基本功能/装备FIT）",
+      "lane": "测试",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "online"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "test_tr4a",
+      "name": "$TR4A",
+      "lane": "测试",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "tr4a",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "group2",
+      "name": "第二组并行测试（含专业测试）",
+      "lane": "测试",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "tr4a"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "test_tr5",
+      "name": "$TR5",
+      "lane": "测试",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "tr5",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "small_batch",
+      "name": "$小批量试制",
+      "lane": "单板",
+      "duration": 1,
+      "unit": "month",
+      "deps": [
+        "archive",
+        "mass_material"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "struct_tr6",
+      "name": "$TR6",
+      "lane": "结构",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "tr6",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "dip_emc",
+      "name": "DIP+EMC测试",
+      "lane": "测试",
+      "duration": 1,
+      "unit": "week",
+      "deps": [
+        "online"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "bom_archive",
+      "name": "BOM归档",
+      "lane": "单板",
+      "duration": 2,
+      "unit": "day",
+      "deps": [
+        "online"
+      ],
+      "sharedWith": "",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    },
+    {
+      "id": "board_mass_material",
+      "name": "$量产物料齐备(结构&光模块)",
+      "lane": "单板",
+      "duration": null,
+      "unit": "day",
+      "deps": [],
+      "sharedWith": "mass_material",
+      "status": "auto",
+      "fixedEnd": "",
+      "actualEnd": "",
+      "target": ""
+    }
+  ],
+  "monthMode": "calendar"
+}

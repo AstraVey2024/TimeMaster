@@ -650,7 +650,7 @@ function pageWheel(ev){
   if(!delta)return;
   pageScale=Math.max(.5,Math.min(2.5,pageScale*Math.exp(-Math.max(-160,Math.min(160,delta))*.002)));
   document.body.style.zoom=String(pageScale);
-  const headerHeight=['header','.subbar','.insert-toolbar'].reduce((height,selector)=>height+(document.querySelector(selector)?.offsetHeight||0),0);
+  const headerHeight=['.suite-nav','header','.subbar','.insert-toolbar'].reduce((height,selector)=>height+(document.querySelector(selector)?.offsetHeight||0),0);
   document.querySelector('main').style.height=Math.max(180,pageHeight()-headerHeight-34)+'px';
   render();toast('页面缩放 '+Math.round(pageScale*100)+'%');
 }
@@ -948,3 +948,6 @@ function setInspectorCollapsed(collapsed,persist=true){
 }
 $('#inspectorToggle').onclick=()=>setInspectorCollapsed(!document.body.classList.contains('inspector-collapsed'));
 setInspectorCollapsed(localStorage.getItem('osa-inspector-collapsed')==='true',false);
+
+
+if(window.location&&new URL(window.location.href).searchParams.get('from')==='plan')fit();

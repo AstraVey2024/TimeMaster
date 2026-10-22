@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {cropBounds,outputPixels,dragCrop,croppedSvg,paintExport,projectFingerprint,blankProject,writeProjectFile} from '../dist/export-image.mjs';
-import {reportData,reportSvg} from '../dist/transfer.mjs';
+import {cropBounds,outputPixels,dragCrop,croppedSvg,paintExport,projectFingerprint,blankProject,writeProjectFile} from '../dist/timeline/export-image.mjs';
+import {reportData,reportSvg} from '../dist/timeline/transfer.mjs';
 import {harness} from './app-harness.mjs';
 test('crop coordinates reject invalid, out of bounds and empty areas',()=>{assert.deepEqual(cropBounds({x:10,y:20,width:100,height:40},200,100),{x:10,y:20,width:100,height:40});for(const c of [{x:-1,y:0,width:10,height:10},{x:190,y:0,width:20,height:10},{x:0,y:0,width:0,height:1},{x:0,y:NaN,width:1,height:1}])assert.throws(()=>cropBounds(c,200,100));});
 test('reverse crop drag clamps to source, output preserves aspect and enforces allocation limits',()=>{assert.deepEqual(dragCrop({x:90,y:50},{x:-50,y:10},100,60),{x:0,y:10,width:90,height:40});assert.deepEqual(outputPixels({width:100,height:50},400),{width:400,height:200});assert.throws(()=>outputPixels({width:100,height:100},10000));assert.throws(()=>outputPixels({width:1,height:1},0));assert.doesNotThrow(()=>cropBounds(dragCrop({x:100,y:60},{x:100,y:60},100,60),100,60));});
@@ -15,3 +15,4 @@ test('local save failure leaves baseline dirty, retry saves exact bundle and lat
 test('external file change cancellation does not overwrite disk',async()=>{const h=harness({confirm:()=>false});await h.run('versionWrites');h.run("let touched=false;localFileText='original';localFileHandle={name:'test.json',getFile:async()=>({text:async()=> 'external edit'}),createWritable:async()=>{touched=true;throw Error('should not happen')}}");await h.context.saveLocalProject();assert.equal(h.run('touched'),false);});
 
 test('PNG render path leaves transparent canvas unfilled and explicitly paints white for opaque mode',()=>{for(const transparent of [true,false]){const calls=[],canvas={getContext:()=>({fillRect:()=>calls.push('fill'),drawImage:()=>calls.push('image')})};paintExport(canvas,{}, {width:800,height:400},transparent);assert.equal(canvas.width,800);assert.equal(canvas.height,400);assert.deepEqual(calls,transparent?['image']:['fill','image']);}});
+

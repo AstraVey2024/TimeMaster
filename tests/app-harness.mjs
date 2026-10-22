@@ -1,17 +1,17 @@
 // Lightweight DOM doubles for app wiring regression tests (not browser rendering).
 import vm from 'node:vm';
-import * as exportImage from '../dist/export-image.mjs';
-import * as transfer from '../dist/transfer.mjs';
-import * as versions from '../dist/versions.mjs';
+import * as exportImage from '../dist/timeline/export-image.mjs';
+import * as transfer from '../dist/timeline/transfer.mjs';
+import * as versions from '../dist/timeline/versions.mjs';
 import fs from 'node:fs';
 import {randomUUID} from 'node:crypto';
-import * as project from '../dist/project.mjs';
-import * as presentation from '../dist/presentation.mjs';
-import * as formatting from '../dist/formatting.mjs';
-import * as dates from '../dist/dates.mjs';
-import * as interactions from '../dist/interactions.mjs';
-import * as content from '../dist/content.mjs';
-import {layout} from '../dist/layout.mjs';
+import * as project from '../dist/timeline/project.mjs';
+import * as presentation from '../dist/timeline/presentation.mjs';
+import * as formatting from '../dist/timeline/formatting.mjs';
+import * as dates from '../dist/timeline/dates.mjs';
+import * as interactions from '../dist/timeline/interactions.mjs';
+import * as content from '../dist/timeline/content.mjs';
+import {layout} from '../dist/timeline/layout.mjs';
 export function harness(options={}){
   const ids=new Map();let document;
   class El{
@@ -35,7 +35,7 @@ export function harness(options={}){
     insertAdjacentElement(where,el){const parent=this.parent;if(parent){el.parent=parent;parent.children.splice(parent.children.indexOf(this)+(where==='afterend'?1:0),0,el);}return el;}
     getBoundingClientRect(){return {left:20,top:300,right:250,bottom:330,width:230,height:30};}setPointerCapture(){}
   }
-  const html=fs.readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
+  const html=fs.readFileSync(new URL('../dist/timeline/index.html',import.meta.url),'utf8');
   const root=new El('body');root.innerHTML=html;
   const docListeners={};document={body:root,activeElement:root,querySelector:s=>s.includes(' ')?document.querySelector(s.split(' ')[0])?.querySelector(s.split(' ').slice(1).join(' '))??null:s==='dialog[open]'?[...ids.values()].find(el=>el.tagName==='DIALOG'&&el.open)??null:s.startsWith('#')?ids.get(s.slice(1))??null:root.querySelector(s),createElementNS:(_,tag)=>new El(tag),createElement:tag=>new El(tag),addEventListener:(k,fn)=>(docListeners[k]??=[]).push(fn)};
   // The initial parser deliberately flattens markup; populate menu children explicitly.
@@ -44,6 +44,7 @@ export function harness(options={}){
   const store=options.storage||new Map(),winListeners={},opened=[];
   const sandbox={...exportImage,...transfer,...versions,Option:class extends El{constructor(text,value){super('option');this.textContent=text;this.value=value;}},...formatting,...presentation,...project,...dates,...interactions,...content,layout,document,console,Date,Math,JSON,Object,Number,Array,Set,Map,String,URL,Blob,structuredClone,crypto:{randomUUID},localStorage:{getItem:k=>store.get(k)??null,setItem:(k,v)=>{if(options.failSave?.(k,v))throw Error('quota');store.set(k,v);}},setTimeout:()=>1,clearTimeout:()=>{},ResizeObserver:class{observe(){}},window:{location:options.href?{href:options.href}:undefined,confirm:options.confirm||(()=>false),open:(url)=>{opened.push(url);return {};},innerWidth:1400,innerHeight:900,getSelection:()=>({removeAllRanges(){}}),addEventListener:(k,fn)=>(winListeners[k]??=[]).push(fn)}};
   const context=vm.createContext(sandbox);
-  const source=fs.readFileSync(new URL('../dist/app.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');vm.runInContext(source,context);
+  const source=fs.readFileSync(new URL('../dist/timeline/app.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');vm.runInContext(source,context);
   return {storage:store,opened,run:code=>vm.runInContext(code,context),get:id=>ids.get(id),fire:(type,event)=>ids.get('canvas').listeners[type]?.forEach(fn=>fn({button:0,preventDefault(){},...event})),El,context};
 }
+
